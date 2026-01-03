@@ -11,15 +11,15 @@ A Django-based ecommerce site with:
 video: https://vimeo.com/1151267270?fl=ip&fe=ec
 
 Store
-![picture](https://imgur.com/a/WO4B4Wl)
+![picture](https://i.imgur.com/7RClXzl.png)
 Product Details
-![picture](https://imgur.com/a/vLyxdGH)
+![picture](https://i.imgur.com/fLkUzqP.png)
 Cart
-![picture](https://imgur.com/a/acUHIIE)
+![picture](https://i.imgur.com/lY0w3Sd.png)
 Checkout
-![picture](https://imgur.com/a/oAenYbs)
+![picture](https://i.imgur.com/IGKDU4M.png)
 Payment
-![picture](https://imgur.com/a/GVQNTp1)
+![picture](https://i.imgur.com/BMi4lFS.png)
 
 ## Tech stack
 - Django
