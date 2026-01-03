@@ -128,6 +128,8 @@ USE_TZ = True
 import os
 from pathlib import Path
 
+SITE_ID=1
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
