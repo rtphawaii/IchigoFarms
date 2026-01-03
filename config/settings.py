@@ -25,9 +25,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9x^q1)$2#tz)qs+v&x$d103prmz2biq@=^5wrr(kp(7+b&qhe8'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -171,6 +168,17 @@ STATICFILES_DIRS = [
     BASE_DIR / "store" / "static",
 ]
 
+# Email
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Ichigo Farms <rpang16@gmail.com>")
+
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
+BREVO_TIMEOUT_SECONDS = int(os.getenv("BREVO_TIMEOUT_SECONDS", "15"))
+
+if BREVO_API_KEY:
+    EMAIL_BACKEND = "config.brevo_email_backend.BrevoEmailBackend"
+else:
+    # Local/dev fallback
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 
