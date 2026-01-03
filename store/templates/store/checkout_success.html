@@ -1,0 +1,35 @@
+{% extends "store/base.html" %}
+
+{% block title %}Order confirmed · Ichigo Farms{% endblock %}
+
+{% block content %}
+  <section class="rounded-3xl border border-black/10 bg-white/70 backdrop-blur-xl p-8
+                  shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+    <div class="flex items-start gap-4">
+      <div class="grid h-12 w-12 place-items-center rounded-3xl bg-black/5 ring-1 ring-black/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </div>
+
+      <div class="min-w-0">
+        <h1 class="text-3xl font-semibold tracking-tight">Order confirmed</h1>
+        {% if order %}
+          <p class="mt-2 text-sm text-slate-600">Order #{{ order.id }}</p>
+        {% endif %}
+        <p class="mt-2 text-sm text-slate-600">Payment received. We’ll email your confirmation and shipping updates shortly.</p>
+      </div>
+    </div>
+
+    <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+      <a href="{% url 'product_list' %}"
+         class="inline-flex items-center justify-center rounded-2xl bg-black/5 px-5 py-3 text-sm font-semibold ring-1 ring-black/10 hover:bg-black/10 transition">
+        Back to products
+      </a>
+      <a href="{% url 'cart_detail' %}"
+         class="inline-flex items-center justify-center rounded-2xl bg-black/5 px-5 py-3 text-sm font-semibold ring-1 ring-black/10 hover:bg-black/10 transition">
+        View cart
+      </a>
+    </div>
+  </section>
+{% endblock %}

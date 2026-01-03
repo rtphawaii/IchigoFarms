@@ -1,0 +1,41 @@
+{% extends "store/base.html" %}
+{% load money %}
+
+{% block title %}Products · Ichigo Farms{% endblock %}
+
+{% block content %}
+  <div class="flex items-end justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight">Products</h1>
+      <p class="mt-2 text-sm text-slate-600">Fresh picks, shipped with care.</p>
+    </div>
+  </div>
+
+  <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% for p in products %}
+      <a href="{% url 'product_detail' p.slug %}"
+         class="group rounded-3xl border border-black/10 bg-white/70 backdrop-blur-xl p-5
+                shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]
+                transition">
+        <div class="aspect-[4/3] overflow-hidden rounded-2xl bg-black/5 ring-1 ring-black/10">
+          {% if p.image %}
+            <img src="{{ p.image.url }}" alt="{{ p.name }}"
+                 class="h-full w-full object-cover group-hover:scale-[1.02] transition"/>
+          {% endif %}
+        </div>
+
+        <div class="mt-4 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="truncate text-lg font-semibold tracking-tight">{{ p.name }}</div>
+            <div class="mt-1 text-sm text-slate-600 line-clamp-2">{{ p.description }}</div>
+          </div>
+          <div class="shrink-0 rounded-2xl bg-black/5 px-3 py-1.5 text-sm font-semibold ring-1 ring-black/10">
+            {{ p.price_cents|money }}
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <div class="text-slate-600">No products yet.</div>
+    {% endfor %}
+  </div>
+{% endblock %}
