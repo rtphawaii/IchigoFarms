@@ -87,9 +87,10 @@ def checkout_start(request):
             OrderItem.objects.create(
                 order=order,
                 product=product,
-                quantity=qty,
+                product_name=product.name,
+                product_sku=product.sku,
                 unit_price_cents=product.price_cents,
-                line_total_cents=line_total,
+                quantity=qty,
             )
 
     # Build Stripe line_items (Stripe amounts in cents)
@@ -129,7 +130,7 @@ def checkout_start(request):
 
     order.stripe_checkout_session_id = session.id
     order.save(update_fields=["stripe_checkout_session_id"])
-
+    print(success_url)
     return redirect(session.url, permanent=False)
 
 def checkout_success(request):

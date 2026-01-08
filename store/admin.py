@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django import forms
-from .models import Product, Inventory
+from .models import Product, Inventory, ProductImage
 
 class ProductAdminForm(forms.ModelForm):
     price = forms.DecimalField(max_digits=10, decimal_places=2, required=True, help_text="USD")
 
     class Meta:
         model = Product
-        fields = ("name", "slug", "sku", "description", "price", "active", "image")
+        fields = ["name", "description", 'slug',"image", "price_cents","scent_top", "scent_mid", "scent_base", "sku",]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,10 +32,24 @@ class InventoryInline(admin.StackedInline):
     extra = 0
     max_num = 1
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    fields = ("image", "alt_text", "sort_order", "is_active")
+    ordering = ("sort_order",)
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
-    list_display = ("name", "sku", "price_cents","inventory", "active")
+    list_display = ("name", "sku", "price_cents", "inventory", "active")
     search_fields = ("name", "sku")
-    prepopulated_fields = {"slug": ("name",)}
-    inlines = [InventoryInline]
+    inlines = [ProductImageInline,InventoryInline]
+
+    fields = (
+        "name", "slug", "sku",
+        "description", "image",
+        "price",
+        "scent_top", "scent_mid", "scent_base",
+        "active",
+    )
+

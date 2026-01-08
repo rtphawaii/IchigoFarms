@@ -1,7 +1,7 @@
 {% extends "store/base.html" %}
 {% load money %}
 
-{% block title %}Cart · Ichigo Farms{% endblock %}
+{% block title %}Cart · Ikigai Candles{% endblock %}
 
 {% block content %}
   <div class="flex items-end justify-between">
@@ -17,14 +17,14 @@
       {% if items %}
         <div class="space-y-4">
           {% for it in items %}
-            <div class="flex items-center justify-between gap-4 rounded-2xl border border-black/10 bg-white/70 p-4">
+            <div class="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0">
-                <div class="font-semibold">{{ it.product.name }}</div>
+                <div class="font-semibold truncate">{{ it.product.name }}</div>
                 <div class="text-sm text-slate-600">{{ it.product.price_cents|money }} each</div>
               </div>
 
-              <div class="flex items-center gap-3">
-                <form method="post" action="{% url 'cart_set' it.product.id %}" class="flex items-center gap-2">
+              <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+                <form method="post" action="{% url 'cart_set' it.product.id %}" class="flex w-full items-center gap-2 sm:w-auto">
                   {% csrf_token %}
                   <input type="number" name="qty" min="0" value="{{ it.qty }}"
                          class="w-20 rounded-2xl border border-black/10 bg-white px-3 py-2 text-sm"/>
@@ -33,7 +33,7 @@
                   </button>
                 </form>
 
-                <div class="w-28 text-right font-semibold">
+                <div class="text-right font-semibold sm:w-28">
                   {{ it.line_total_cents|money }}
                 </div>
               </div>

@@ -7,9 +7,8 @@ def send_order_confirmation_email(order):
 
     lines = []
     for item in order.items.select_related("product").all():
-        lines.append(
-            f"- {item.product.name} x{item.quantity} (${item.unit_price_cents/100:.2f} each)"
-        )
+        lines.append(f"- {item.product_name} x{item.quantity} (${item.unit_price_cents/100:.2f} each)")
+
 
     body = "\n".join([
         f"Thanks for your order, {order.full_name}!",

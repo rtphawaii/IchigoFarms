@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from orders.emails import send_order_confirmation_email
+from django.core.exceptions import ObjectDoesNotExist
 
 from orders.models import Order
 from store.models import Inventory
@@ -43,6 +44,7 @@ def _send_order_confirmation(order: Order):
 
 @csrf_exempt
 def stripe_webhook(request):
+    print('debug')
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
@@ -55,20 +57,30 @@ def stripe_webhook(request):
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
         order_id = session.get("metadata", {}).get("order_id")
+        if not order_id:
+            return HttpResponse("Missing order_id metadata", status=200)
 
-        if order_id:
+        try:
+            order_id_int = int(order_id)
+        except ValueError:
+            return HttpResponse("Invalid order_id metadata", status=200)
+
+        try:
             with transaction.atomic():
-                order = Order.objects.select_for_update().get(id=int(order_id))
+                order = Order.objects.select_for_update().get(id=order_id_int)
 
-                # Idempotency: if already paid, do nothing
                 if order.status != "PAID":
+
                     order.status = "PAID"
                     order.stripe_payment_intent_id = session.get("payment_intent", "")
                     order.save(update_fields=["status", "stripe_payment_intent_id"])
 
                     # Decrement inventory safely
                     for item in order.items.select_related("product").all():
-                        inv = Inventory.objects.select_for_update().get(product=item.product)
+                        try:
+                            inv = Inventory.objects.select_for_update().get(product=item.product)
+                        except Inventory.DoesNotExist:
+                            continue
                         if inv.stock_on_hand < item.quantity:
                             # You can choose to flag for manual handling here
                             # but we won't error Stripe webhook to avoid retries loops.
@@ -87,5 +99,7 @@ def stripe_webhook(request):
             except Exception:
                 # In prod: log this
                 pass
+        except Order.DoesNotExist:
+            return HttpResponse("Order not found", status=200)
 
     return HttpResponse(status=200)

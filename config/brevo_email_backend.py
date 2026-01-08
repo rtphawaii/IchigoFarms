@@ -52,7 +52,7 @@ class BrevoEmailBackend(BaseEmailBackend):
 
             from_name, from_email = _parse_from(msg.from_email or settings.DEFAULT_FROM_EMAIL)
             payload = {
-                "sender": {"name": from_name or "Ichigo Farms", "email": from_email},
+                "sender": {"name": from_name or "Ikigai Candles", "email": from_email},
                 "to": [{"email": r} for r in msg.to],
                 "subject": msg.subject or "",
                 "textContent": msg.body or "",

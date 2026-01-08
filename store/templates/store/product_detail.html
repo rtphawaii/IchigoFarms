@@ -1,42 +1,186 @@
 {% extends "store/base.html" %}
 {% load money %}
 
-{% block title %}{{ product.name }} · Ichigo Farms{% endblock %}
+{% block title %}{{ product.name }} · Ikigai Candles{% endblock %}
 
 {% block content %}
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-    <div class="overflow-hidden rounded-3xl border border-black/10 bg-white/70 backdrop-blur-xl
-                shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
-      <div class="aspect-[4/3] bg-black/5">
-        {% if product.image %}
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover" />
+
+    <!-- Image -->
+   <!-- Images (carousel) -->
+    {% with imgs=product.images.all %}
+      <div class="border border-black/10 bg-white/70 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+
+        {# Main image area #}
+        <div class="relative aspect-[4/3] bg-black/5 overflow-hidden">
+          {% if imgs %}
+            {% for img in imgs %}
+              {% if img.is_active %}
+                <img
+                  src="{{ img.image.url }}"
+                  alt="{{ img.alt_text|default:product.name }}"
+                  class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300"
+                  data-carousel-img="{{ forloop.counter0 }}"
+                  loading="lazy"
+                />
+              {% endif %}
+            {% endfor %}
+          {% elif product.image %}
+            <img
+              src="{{ product.image.url }}"
+              alt="{{ product.name }}"
+              class="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
+          {% else %}
+            <div class="absolute inset-0 flex items-center justify-center text-sm text-slate-500">
+              No image available
+            </div>
+          {% endif %}
+
+          {# Controls (only if more than 1 image) #}
+          {% if imgs|length > 1 %}
+            <button type="button"
+              class="absolute left-3 top-1/2 -translate-y-1/2 border border-black/20 bg-white/70 px-3 py-2 text-xs font-semibold tracking-wide hover:bg-white transition"
+              data-carousel-prev
+              aria-label="Previous image">
+              Prev
+            </button>
+
+            <button type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 border border-black/20 bg-white/70 px-3 py-2 text-xs font-semibold tracking-wide hover:bg-white transition"
+              data-carousel-next
+              aria-label="Next image">
+              Next
+            </button>
+          {% endif %}
+        </div>
+
+        {# Thumbnails #}
+        {% if imgs|length > 1 %}
+          <div class="border-t border-black/10 bg-white/60 p-3">
+            <div class="flex gap-3 overflow-x-auto">
+              {% for img in imgs %}
+                {% if img.is_active %}
+                  <button type="button"
+                    class="shrink-0 border border-black/15 bg-white/70 p-0.5 hover:bg-white transition"
+                    data-carousel-thumb="{{ forloop.counter0 }}"
+                    aria-label="View image {{ forloop.counter }}">
+                    <img src="{{ img.image.url }}" alt=""
+                        class="h-14 w-20 object-cover" loading="lazy">
+                  </button>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
       </div>
-    </div>
 
+      {# Tiny JS (no libs) #}
+      <script>
+        (function () {
+          const root = document.currentScript.previousElementSibling;
+          if (!root) return;
+
+          const imgs = Array.from(root.querySelectorAll("[data-carousel-img]"));
+          if (!imgs.length) return;
+
+          let idx = 0;
+
+          function show(i) {
+            idx = (i + imgs.length) % imgs.length;
+            imgs.forEach((el, n) => el.style.opacity = (n === idx ? "1" : "0"));
+          }
+
+          const prev = root.querySelector("[data-carousel-prev]");
+          const next = root.querySelector("[data-carousel-next]");
+          if (prev) prev.addEventListener("click", () => show(idx - 1));
+          if (next) next.addEventListener("click", () => show(idx + 1));
+
+          root.querySelectorAll("[data-carousel-thumb]").forEach(btn => {
+            btn.addEventListener("click", () => show(parseInt(btn.dataset.carouselThumb, 10)));
+          });
+
+          show(0);
+        })();
+      </script>
+    {% endwith %}
+
+
+    <!-- Details -->
     <div class="rounded-3xl border border-black/10 bg-white/70 backdrop-blur-xl p-7
                 shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
-      <h1 class="text-3xl font-semibold tracking-tight">{{ product.name }}</h1>
+      <div class="flex items-start justify-between gap-6">
+        <div class="min-w-0">
+          <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+            {{ product.name }}
+          </h1>
 
-      <div class="mt-3 inline-flex items-center rounded-2xl bg-black/5 px-3 py-1.5 text-sm font-semibold ring-1 ring-black/10">
-        {{ product.price_cents|money }}
+          {% if product.sku %}
+
+          {% endif %}
+        </div>
+
+        <div class="shrink-0 inline-flex items-center rounded-2xl bg-black/5 px-3 py-1.5 text-sm font-semibold ring-1 ring-black/10">
+          {{ product.price_cents|money }}
+        </div>
       </div>
 
-      {% if product.sku %}
-        <div class="mt-3 text-sm text-slate-600">SKU: <span class="font-medium text-slate-800">{{ product.sku }}</span></div>
+      <!-- Description -->
+      {% if product.description %}
+        <div class="mt-5 text-slate-700 leading-relaxed whitespace-pre-line">
+          {{ product.description }}
+        </div>
+      {% else %}
+        <p class="mt-5 text-slate-600">No description yet.</p>
       {% endif %}
 
-      <p class="mt-5 text-slate-700 leading-relaxed">{{ product.description }}</p>
+      <!-- Scent profile (static section; fill in copy manually in template or keep as placeholders) -->
+      {% if product.scent_top or product.scent_mid or product.scent_base %}
+        <div class="mt-8 border-t border-black/10 pt-6">
 
-      <form method="post" action="{% url 'cart_add' product.id %}" class="mt-7 flex items-center gap-3">
+          <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="rounded-2xl border border-black/10 bg-white/70 p-4">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-600">Top</div>
+              <p class="mt-2 text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                {{ product.scent_top|default:"—" }}
+              </p>
+            </div>
+
+            <div class="rounded-2xl border border-black/10 bg-white/70 p-4">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-600">Mid</div>
+              <p class="mt-2 text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                {{ product.scent_mid|default:"—" }}
+              </p>
+            </div>
+
+            <div class="rounded-2xl border border-black/10 bg-white/70 p-4">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-600">Base</div>
+              <p class="mt-2 text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                {{ product.scent_base|default:"—" }}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+
+      <!-- Add to cart -->
+      <form method="post" action="{% url 'cart_add' product.id %}" class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         {% csrf_token %}
-        <input
-          type="number"
-          name="qty"
-          min="1"
-          value="1"
-          class="w-24 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm ring-1 ring-black/5 focus:outline-none"
-        />
+
+        <div class="flex items-center gap-3">
+          <label for="qty" class="text-sm font-semibold text-slate-700">Qty</label>
+          <input
+            id="qty"
+            type="number"
+            name="qty"
+            min="1"
+            value="1"
+            class="w-24 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm ring-1 ring-black/5 focus:outline-none"
+          />
+        </div>
+
         <button
           type="submit"
           class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white
@@ -46,7 +190,7 @@
         </button>
       </form>
 
-      <a href="{% url 'product_list' %}" class="mt-5 inline-block text-sm text-slate-600 hover:text-slate-900">
+      <a href="{% url 'product_list' %}" class="mt-6 inline-block text-sm text-slate-600 hover:text-slate-900">
         ← Back to products
       </a>
     </div>

@@ -113,6 +113,19 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField()
     unit_price_cents = models.PositiveIntegerField()  # snapshot at purchase time
     line_total_cents = models.PositiveIntegerField()
+    order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey("store.Product", on_delete=models.PROTECT)
+
+    product_name = models.CharField(max_length=200, null=True, blank=True)
+    product_sku  = models.CharField(max_length=64,  null=True, blank=True)
+
+    unit_price_cents = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.product.name} x{self.quantity}"
+    
+    def save(self, *args, **kwargs):
+        # always compute
+        self.line_total_cents = int(self.unit_price_cents) * int(self.quantity)
+        super().save(*args, **kwargs)
